@@ -83,7 +83,20 @@ export default function Canvas() {
               borderRadius: icon.bgShape === 'circle' ? '50%' : icon.bgShape === 'rounded-square' ? `${icon.radius}px` : icon.bgShape === 'square' ? '0' : '0',
           }}
       >
-          <Icon icon={icon.name} width={icon.size} height={icon.size} color={icon.color} />
+          {icon.customIconUrl ? (
+              <img 
+                  src={icon.customIconUrl} 
+                  alt="Custom Icon" 
+                  className="w-full h-full object-contain"
+                  style={{
+                      width: `${icon.size}px`,
+                      height: `${icon.size}px`,
+                      borderRadius: `${icon.customIconRadius}px`,
+                  }}
+              />
+          ) : (
+              <Icon icon={icon.name} width={icon.size} height={icon.size} color={icon.color} />
+          )}
       </div>
       );
   };

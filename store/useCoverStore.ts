@@ -41,6 +41,9 @@ interface IconSettings {
   // Transparency and Blur for container
   bgOpacity: number; // 0-1
   bgBlur: number; // px
+  // Custom image icon
+  customIconUrl?: string;
+  customIconRadius: number; // For custom image icon radius
 }
 
 interface BackgroundSettings {
@@ -107,6 +110,7 @@ export const useCoverStore = create<CoverState>((set) => ({
     shadowOffsetY: 4,
     bgOpacity: 1,
     bgBlur: 0,
+    customIconRadius: 0,
   },
   background: {
     type: 'solid',

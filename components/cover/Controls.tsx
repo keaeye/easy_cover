@@ -14,7 +14,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { IconPicker } from '@/components/cover/IconPicker';
 import { Separator } from '@/components/ui/separator';
-import { Download, RotateCcw, Maximize, Github } from 'lucide-react';
+import { Download, RotateCcw, Maximize, Github, ExternalLink } from 'lucide-react';
 import { toPng } from 'html-to-image';
 
 // Helper component for Reset Button
@@ -38,6 +38,14 @@ export default function Controls() {
     if (file) {
       const url = URL.createObjectURL(file);
       store.updateBackground({ type: 'image', imageUrl: url });
+    }
+  };
+
+  const handleIconUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      store.updateIcon({ customIconUrl: url });
     }
   };
 
@@ -134,6 +142,8 @@ export default function Controls() {
       }
       store.updateBackground(updates);
   };
+
+  const [activeTab, setActiveTab] = React.useState('picker');
 
   return (
     <div className="w-full md:w-80 h-1/2 md:h-full border-t md:border-t-0 md:border-r bg-background flex flex-col shadow-lg z-10">
@@ -239,10 +249,76 @@ export default function Controls() {
           {/* Icon Section */}
           <section className="space-y-3">
             <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">图标设置</h3>
-            <div className="space-y-2">
-              <Label>选择图标</Label>
-              <IconPicker value={store.icon.name} onChange={(v) => store.updateIcon({ name: v })} />
-            </div>
+            
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="picker">选择图标</TabsTrigger>
+                    <TabsTrigger value="upload">上传图标</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="picker" className="space-y-2 mt-2">
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <Label>搜索图标</Label>
+                        <a 
+                            href="https://yesicon.app/" 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            className="text-[10px] text-muted-foreground flex items-center hover:text-primary hover:underline"
+                        >
+                            查找图标名称 <ExternalLink className="w-3 h-3 ml-0.5" />
+                        </a>
+                      </div>
+                      <IconPicker 
+                        value={store.icon.name} 
+                        onChange={(v) => {
+                            store.updateIcon({ name: v, customIconUrl: undefined }); // Clear custom icon when picking new one
+                        }} 
+                      />
+                      <div className="text-center pt-1">
+                          <button 
+                            className="text-[10px] text-muted-foreground hover:text-primary hover:underline cursor-pointer"
+                            onClick={() => setActiveTab('upload')}
+                          >
+                            没有找到想要的？手动上传！
+                          </button>
+                      </div>
+                    </div>
+                </TabsContent>
+                
+                <TabsContent value="upload" className="space-y-2 mt-2">
+                    <div className="space-y-2">
+                        <Label>上传图片</Label>
+                        <Input type="file" accept="image/*" onChange={handleIconUpload} />
+                        {store.icon.customIconUrl && (
+                            <>
+                                <div className="space-y-2">
+                                    <div className="flex justify-between items-center">
+                                        <Label className="text-xs">图片圆角 ({store.icon.customIconRadius}px)</Label>
+                                        <ResetButton onClick={() => store.updateIcon({ customIconRadius: 0 })} />
+                                    </div>
+                                    <Slider 
+                                        value={[store.icon.customIconRadius]} 
+                                        min={0} 
+                                        max={1000} 
+                                        step={5} 
+                                        onValueChange={(v) => store.updateIcon({ customIconRadius: v[0] })} 
+                                    />
+                                </div>
+
+                                <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    className="w-full text-xs"
+                                    onClick={() => store.updateIcon({ customIconUrl: undefined })}
+                                >
+                                    清除自定义图标 (使用默认图标)
+                                </Button>
+                            </>
+                        )}
+                    </div>
+                </TabsContent>
+            </Tabs>
 
             <div className="space-y-2">
                <div className="flex justify-between items-center">
